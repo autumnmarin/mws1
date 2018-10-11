@@ -7,7 +7,6 @@ var urlsToCache = [
   '/js/main.js',
   '/js/dbhelper.js',
   '/js/restaurant_info.js',
-  '/js/idb-test.js',
   'favicon.ico'
 ];
 
