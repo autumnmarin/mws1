@@ -12,7 +12,8 @@
   "devDependencies": {
     "gulp": "^3.9.1",
     "gulp-image-resize": "^0.13.0",
-    "gulp-imagemin": "^4.1.0"
+    "gulp-imagemin": "^4.1.0",
+    "gulp-webp": "^3.0.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

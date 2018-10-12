@@ -7,7 +7,8 @@ var urlsToCache = [
   '/js/main.js',
   '/js/dbhelper.js',
   '/js/restaurant_info.js',
-  'favicon.ico'
+  'favicon.ico',
+  'manifest.json'
 ];
 
 self.addEventListener('install', function(event) {

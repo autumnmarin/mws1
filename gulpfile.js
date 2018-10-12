@@ -1,12 +1,8 @@
 const gulp = require('gulp');
-const imagemin = require('gulp-imagemin');
-const imageminMozjpeg = require('imagemin-mozjpeg');
+const webp = require('gulp-webp');
 
-gulp.task('mozjpeg', () =>
+gulp.task('default', () =>
     gulp.src('img/*.jpg')
-    .pipe(imagemin([imageminMozjpeg({
-        quality: 85
-
-    })]))
-    .pipe(gulp.dest('dist'))
+        .pipe(webp())
+        .pipe(gulp.dest('dist'))
 );
