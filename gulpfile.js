@@ -1,18 +1,12 @@
-var gulp = require('gulp');
-var smushit = require('gulp-smushit');
+const gulp = require('gulp');
 const imagemin = require('gulp-imagemin');
+const imageminMozjpeg = require('imagemin-mozjpeg');
 
-gulp.task('default', function () {
-    return gulp.src('img/*')
-        .pipe(smushit({
-            verbose: true
-        }))
-        .pipe(gulp.dest('smushit-img'));
-});
+gulp.task('mozjpeg', () =>
+    gulp.src('img/*.jpg')
+    .pipe(imagemin([imageminMozjpeg({
+        quality: 85
 
-
-gulp.task('default',function(){
-return gulp.src('img/*')
-.pipe(imagemin({progressive: true, optimizationLevel: 5}))
-.pipe(gulp.dest('./imgnew/'));
-});
+    })]))
+    .pipe(gulp.dest('dist'))
+);

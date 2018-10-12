@@ -13,6 +13,88 @@ class DBHelper {
        return `http://localhost:${port}/restaurants`;
    }
 
+/* code adapted from  https://github.com/udacity/mws-restaurant-stage-3/pull/3/files */
+
+static createRestaurantsStore(restaurants) {
+  // Get the compatible IndexedDB version
+  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+   // Open (or create) the database
+  var open = indexedDB.open("RestaurantDB", 1);
+   // Create the schema
+  open.onupgradeneeded = function() {
+    var db = open.result;
+    db.createObjectStore("RestaurantStore", { keyPath: "id" });
+    restaurants.forEach(function(restaurant) {
+      db.createObjectStore("ReviewsStore-" + restaurant.id, { keyPath: "id" });
+    });
+   };
+   open.onerror = function(err) {
+    console.error("Something went wrong with IndexDB: " + err.target.errorCode);
+  }
+   open.onsuccess = function() {
+    // Start a new transaction
+    var db = open.result;
+    var tx = db.transaction("RestaurantStore", "readwrite");
+    var store = tx.objectStore("RestaurantStore");
+     // Add the restaurant data
+    restaurants.forEach(function(restaurant) {
+      store.put(restaurant);
+    });
+     // Close the db when the transaction is done
+    tx.oncomplete = function() {
+      db.close();
+    };
+  }
+}
+ static createReviewsStore(restaurantId, reviews) {
+  // Get the compatible IndexedDB version
+  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+   // Open (or create) the database
+  var open = indexedDB.open("RestaurantDB", 1);
+   // Create the schema
+  open.onupgradeneeded = function() {
+    var db = open.result;
+    db.createObjectStore("ReviewsStore-" + restaurantId, { keyPath: "id" });
+  };
+   open.onerror = function(err) {
+    console.error("Something went wrong with IndexDB: " + err.target.errorCode);
+  }
+   open.onsuccess = function() {
+    // Start a new transaction
+    var db = open.result;
+    var tx = db.transaction("ReviewsStore-" + restaurantId, "readwrite");
+    var store = tx.objectStore("ReviewsStore-" + restaurantId);
+     // Add the restaurant data
+    reviews.forEach(function(review) {
+      store.put(review);
+    });
+     // Close the db when the transaction is done
+    tx.oncomplete = function() {
+      db.close();
+    };
+  }
+}
+ static getCachedData(callback) {
+  var restaurants = [];
+   // Get the compatible IndexedDB version
+  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
+  var open = indexedDB.open("RestaurantDB", 1);
+   open.onsuccess = function() {
+    // Start a new transaction
+    var db = open.result;
+    var tx = db.transaction("RestaurantStore", "readwrite");
+    var store = tx.objectStore("RestaurantStore");
+    var getData = store.getAll();
+     getData.onsuccess = function() {
+      callback(null, getData.result);
+    }
+     // Close the db when the transaction is done
+    tx.oncomplete = function() {
+      db.close();
+    };
+  }
+ }
+
   /**
    * Fetch all restaurants.
   */
@@ -26,7 +108,7 @@ class DBHelper {
       fetch(fetchURL)
       .then(response => {
         response.json().then(restaurants => {
-        console.log("restaurants JSON: ",restaurants);
+        //console.log("restaurants JSON: ",restaurants);
         callback(null,restaurants);
       }).catch(function(err) {
         console.log('fetch error ', err);

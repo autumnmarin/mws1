@@ -1,0 +1,24 @@
+// adapted from code from https://github.com/udacity/mws-restaurant-stage-3/pull/3/files
+
+ {
+  "short_name": "restaurants",
+  "name": "mws-restaurant-stage-2",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "type": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "/favicon.ico",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#252831",
+  "orientation": "portrait",
+  "theme_color": "#252831"
+}

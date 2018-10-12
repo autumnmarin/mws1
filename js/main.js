@@ -46,6 +46,7 @@ function storeJSONLocal(){
 }
 */
 /*  Save copy, this code creates an IDB database successfully*/
+
 var db;
 
 var openRequest = indexedDB.open('test_db', 1);
