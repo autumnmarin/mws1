@@ -6,6 +6,43 @@ let restaurants,
 var newMap
 var markers = []
 
+//this creates an idb and assigns a name
+var dbPromise = idb.open('test-chickenleg', 3, function(upgradeDb) {
+  var keyValStore = upgradeDb.createObjectStore('keyval');
+  keyValStore.put("chicken", "hello");
+});
+
+// read "hello" in "keyval"
+dbPromise.then(function(db) {
+  //this is a transacation
+  var tx = db.transaction('keyval');
+  //this is an object store, there can be multiple
+  var keyValStore = tx.objectStore('keyval');
+  return keyValStore.get('hello');
+}).then(function(val) {
+  console.log('The value of "hello" is:', val);
+});
+
+// set "foo" to be "bar" in "keyval"
+dbPromise.then(function(db) {
+  var tx = db.transaction('keyval', 'readwrite');
+  var keyValStore = tx.objectStore('keyval');
+  keyValStore.put('bar', 'foo');
+  return tx.complete;
+}).then(function() {
+  console.log('Added foo:bar to keyval');
+});
+
+// set "foo" to be "bar" in "keyval"
+dbPromise.then(function(db) {
+  var tx = db.transaction('keyval', 'readwrite');
+  var keyValStore = tx.objectStore('keyval');
+  keyValStore.put('cat', 'favoriteAnimal');
+  return tx.complete;
+}).then(function() {
+  console.log('Added favoriteAnimal');
+});
+
 
 /*
 function storeJSONLocal(){
@@ -27,70 +64,6 @@ function storeJSONLocal(){
 }
 */
 
-/*AP IDB BEGIN
-
-function storeJSONLocal(){
-  fetch(DBHelper.DATABASE_URL)
-  .then(response => response.json())
-  .then(data => {
-    idb.open('restaurant_info',1, function(upgradeDB){
-      var store = upgradeDB.createObjectStore('restaurants', {
-        keyPath: 'id'
-      });
-    for (i=0; i<data.length; i++){
-      store.put({id:data[i].id,name: data[i].name});
-      console.log(data[i].name);
-    }
-  });
-  });
-}
-*/
-/*  Save copy, this code creates an IDB database successfully*/
-
-var db;
-
-var openRequest = indexedDB.open('test_db', 1);
-
-openRequest.onupgradeneeded = function(e) {
-  var db = e.target.result;
-  console.log('running onupgradeneeded');
-  if (!db.objectStoreNames.contains('store')) {
-    var storeOS = db.createObjectStore('store',
-      {keyPath: 'name'});
-  }
-};
-openRequest.onsuccess = function(e) {
-  console.log('running onsuccess');
-  db = e.target.result;
-  addItem();
-};
-openRequest.onerror = function(e) {
-  console.log('onerror!');
-  console.dir(e);
-};
-
-function addItem() {
-  var transaction = db.transaction(['store'], 'readwrite');
-  var store = transaction.objectStore('store');
-  var item = {
-    name: 'banana',
-    price: '$2.99',
-    description: 'It is a purple banana!',
-    created: new Date().getTime()
-  };
-
- var request = store.add(item);
-
- request.onerror = function(e) {
-    console.log('Error', e.target.error.name);
-  };
-  request.onsuccess = function(e) {
-    console.log('Woot! Did it');
-  };
-}
-
-
-/*AP SW END*/
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
