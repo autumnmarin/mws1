@@ -1,3 +1,47 @@
+//adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
+
+const dbPromise = {
+  // creation and updating of database happens here.
+  db: idb.open('restaurant-reviews-db', 2, function (upgradeDb) {
+    switch (upgradeDb.oldVersion) {
+      case 0:
+        upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
+    }
+  }),
+
+  /**
+   * Save a restaurant or array of restaurants into idb, using promises.
+   */
+  putRestaurants(restaurants) {
+    if (!restaurants.push) restaurants = [restaurants];
+    return this.db.then(db => {
+      const store = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
+      Promise.all(restaurants.map(networkRestaurant => {
+        return store.get(networkRestaurant.id).then(idbRestaurant => {
+          if (!idbRestaurant || networkRestaurant.updatedAt > idbRestaurant.updatedAt) {
+            return store.put(networkRestaurant);
+          }
+        });
+      })).then(function () {
+        return store.complete;
+      });
+    });
+  },
+
+  /**
+   * Get a restaurant, by its id, or all stored restaurants in idb using promises.
+   * If no argument is passed, all restaurants will returned.
+   */
+  getRestaurants(id = undefined) {
+    return this.db.then(db => {
+      const store = db.transaction('restaurants').objectStore('restaurants');
+      if (id) return store.get(Number(id));
+      return store.getAll();
+    });
+  },
+
+};
+
 
 /**
  * Common database helper functions.
@@ -13,127 +57,65 @@ class DBHelper {
      return `http://localhost:${port}/restaurants`;
  }
 
-// code adapted from  https://github.com/udacity/mws-restaurant-stage-3/pull/3/files
-/*
-static createRestaurantsStore(restaurants) {
-  // Get the compatible IndexedDB version
-  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-   // Open (or create) the database
-  var open = indexedDB.open("BeefDB", 1);
-   // Create the schema
-  open.onupgradeneeded = function() {
-    var db = open.result;
-    db.createObjectStore("RestaurantStore", { keyPath: "id" });
-    restaurants.forEach(function(restaurant) {
-      db.createObjectStore("ReviewsStore-" + restaurant.id, { keyPath: "id" });
-    });
-   };
-   open.onerror = function(err) {
-    console.error("Something went wrong with IndexDB: " + err.target.errorCode);
-  }
-   open.onsuccess = function() {
-    // Start a new transaction
-    var db = open.result;
-    var tx = db.transaction("RestaurantStore", "readwrite");
-    var store = tx.objectStore("RestaurantStore");
-     // Add the restaurant data
-    restaurants.forEach(function(restaurant) {
-      store.put(restaurant);
-    });
-     // Close the db when the transaction is done
-    tx.oncomplete = function() {
-      db.close();
-    };
-  }
-}
- static createReviewsStore(restaurantId, reviews) {
-  // Get the compatible IndexedDB version
-  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-   // Open (or create) the database
-  var open = indexedDB.open("RestaurantDB", 1);
-   // Create the schema
-  open.onupgradeneeded = function() {
-    var db = open.result;
-    db.createObjectStore("ReviewsStore-" + restaurantId, { keyPath: "id" });
-  };
-   open.onerror = function(err) {
-    console.error("Something went wrong with IndexDB: " + err.target.errorCode);
-  }
-   open.onsuccess = function() {
-    // Start a new transaction
-    var db = open.result;
-    var tx = db.transaction("ReviewsStore-" + restaurantId, "readwrite");
-    var store = tx.objectStore("ReviewsStore-" + restaurantId);
-     // Add the restaurant data
-    reviews.forEach(function(review) {
-      store.put(review);
-    });
-     // Close the db when the transaction is done
-    tx.oncomplete = function() {
-      db.close();
-    };
-  }
-}
- static getCachedData(callback) {
-  var restaurants = [];
-   // Get the compatible IndexedDB version
-  var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
-  var open = indexedDB.open("RestaurantDB", 1);
-   open.onsuccess = function() {
-    // Start a new transaction
-    var db = open.result;
-    var tx = db.transaction("RestaurantStore", "readwrite");
-    var store = tx.objectStore("RestaurantStore");
-    var getData = store.getAll();
-     getData.onsuccess = function() {
-      callback(null, getData.result);
-    }
-     // Close the db when the transaction is done
-    tx.oncomplete = function() {
-      db.close();
-    };
-  }
- }
-*/
   /**
    * Fetch all restaurants.
   */
-  static fetchRestaurants(callback,id){
-    let fetchURL;
-    if(!id){
-      fetchURL = DBHelper.DATABASE_URL;
-      } else {
-      fetchURL = DBHelper.DATABASE_URL + '/' + id;
+  static fetchRestaurants(callback) {
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', `${DBHelper.API_URL}/restaurants`);
+      xhr.onload = () => {
+        if (xhr.status === 200) { // Got a success response from server!
+          const restaurants = JSON.parse(xhr.responseText);
+          dbPromise.putRestaurants(restaurants);
+          callback(null, restaurants);
+        } else { // Oops!. Got an error from server.
+          console.log(`Request failed. Returned status of ${xhr.status}, trying idb...`);
+          // if xhr request isn't code 200, try idb
+          dbPromise.getRestaurants().then(idbRestaurants => {
+            // if we get back more than 1 restaurant from idb, return idbRestaurants
+            if (idbRestaurants.length > 0) {
+              callback(null, idbRestaurants)
+            } else { // if we got back 0 restaurants return an error
+              callback('No restaurants found in idb', null);
+            }
+          });
+        }
+      };
+      // XHR needs error handling for when server is down (doesn't respond or sends back codes)
+      xhr.onerror = () => {
+        console.log('Error while trying XHR, trying idb...');
+        // try idb, and if we get restaurants back, return them, otherwise return an error
+        dbPromise.getRestaurants().then(idbRestaurants => {
+          if (idbRestaurants.length > 0) {
+            callback(null, idbRestaurants)
+          } else {
+            callback('No restaurants found in idb', null);
+          }
+        });
       }
-      fetch(fetchURL)
-      .then(response => {
-        response.json().then(restaurants => {
-        console.log("restaurants JSON: ",restaurants);
-        callback(null,restaurants);
-      }).catch(function(err) {
-        console.log('fetch error ', err);
-      });
-    })
-  };
+      xhr.send();
+    }
 
   /**
    * Fetch a restaurant by its ID.
    */
-  static fetchRestaurantById(id, callback) {
-    // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        const restaurant = restaurants.find(r => r.id == id);
-        if (restaurant) { // Got the restaurant
-          callback(null, restaurant);
-        } else { // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
-        }
-      }
-    });
-  }
+   static fetchRestaurantById(id, callback) {
+     fetch(`${DBHelper.API_URL}/restaurants/${id}`).then(response => {
+       if (!response.ok) return Promise.reject("Restaurant couldn't be fetched from network");
+       return response.json();
+     }).then(fetchedRestaurant => {
+       // if restaurant could be fetched from network:
+       dbPromise.putRestaurants(fetchedRestaurant);
+       return callback(null, fetchedRestaurant);
+     }).catch(networkError => {
+       // if restaurant couldn't be fetched from network:
+       console.log(`${networkError}, trying idb.`);
+       dbPromise.getRestaurants(id).then(idbRestaurant => {
+         if (!idbRestaurant) return callback("Restaurant not found in idb either", null);
+         return callback(null, idbRestaurant);
+       });
+     });
+   }
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.

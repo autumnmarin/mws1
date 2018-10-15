@@ -1,32 +1,10 @@
-/*Resubmission*/
+//adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
 let restaurants,
   neighborhoods,
   cuisines
 var newMap
 var markers = []
-
-
-
-/*
-function storeJSONLocal(){
-  fetch(DBHelper.DATABASE_URL)
-   .then(response => response.json())
-   .then(data =>{
-    //open indexDB database and add data in this then
-    idb.open('restaurant_info', 1, function(upgradeDB) {
-      var store = upgradeDB.createObjectStore('restaurants', {
-        keyPath: 'id'
-      });
-
-   for(i=0; i < data.length; i++){
-      store.put({id:data[i].id,name: data[i].name});
-      console.log(data[i].name); //test to see if this works
-    }
-  });
-  });
-}
-*/
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
@@ -213,13 +191,3 @@ addMarkersToMap = (restaurants = self.restaurants) => {
   });
 
 }
-/* addMarkersToMap = (restaurants = self.restaurants) => {
-  restaurants.forEach(restaurant => {
-    // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
-    google.maps.event.addListener(marker, 'click', () => {
-      window.location.href = marker.url
-    });
-    self.markers.push(marker);
-  });
-} */

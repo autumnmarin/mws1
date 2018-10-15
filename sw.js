@@ -1,15 +1,27 @@
-var CACHE_NAME = 'apcachev5';
+var CACHE_NAME = 'apcachev7';
 var urlsToCache = [
-  '/',
-  'index.html',
-  'restaurant.html',
-  '/css/styles.css',
-  '/js/main.js',
-  '/js/dbhelper.js',
-  '/js/restaurant_info.js',
-  'favicon.ico',
-  'manifest.json'
-];
+    '/',
+    '/css/styles.css',
+    '/img/1.webp',
+    '/img/2.webp',
+    '/img/3.webp',
+    '/img/4.webp',
+    '/img/5.webp',
+    '/img/6.webp',
+    '/img/7.webp',
+    '/img/8.webp',
+    '/img/9.webp',
+    '/img/10.webp',
+    '/img/undefined.webp',
+    '/js/dbhelper.js',
+    '/js/idb.js',
+    '/js/main.js',
+    '/js/restaurant_info.js',
+    'favicon.ico',
+    'index.html',
+    'manifest.json',
+    'restaurant.html',
+  ];
 
 self.addEventListener('install', function(event) {
   // Perform install steps
