@@ -6,42 +6,6 @@ let restaurants,
 var newMap
 var markers = []
 
-//this creates an idb and assigns a name
-var dbPromise = idb.open('test-chickenleg', 3, function(upgradeDb) {
-  var keyValStore = upgradeDb.createObjectStore('keyval');
-  keyValStore.put("chicken", "hello");
-});
-
-// read "hello" in "keyval"
-dbPromise.then(function(db) {
-  //this is a transacation
-  var tx = db.transaction('keyval');
-  //this is an object store, there can be multiple
-  var keyValStore = tx.objectStore('keyval');
-  return keyValStore.get('hello');
-}).then(function(val) {
-  console.log('The value of "hello" is:', val);
-});
-
-// set "foo" to be "bar" in "keyval"
-dbPromise.then(function(db) {
-  var tx = db.transaction('keyval', 'readwrite');
-  var keyValStore = tx.objectStore('keyval');
-  keyValStore.put('bar', 'foo');
-  return tx.complete;
-}).then(function() {
-  console.log('Added foo:bar to keyval');
-});
-
-// set "foo" to be "bar" in "keyval"
-dbPromise.then(function(db) {
-  var tx = db.transaction('keyval', 'readwrite');
-  var keyValStore = tx.objectStore('keyval');
-  keyValStore.put('cat', 'favoriteAnimal');
-  return tx.complete;
-}).then(function() {
-  console.log('Added favoriteAnimal');
-});
 
 
 /*
@@ -206,17 +170,8 @@ createRestaurantHTML = (restaurant) => {
   const image = document.createElement('img');
   image.className = 'restaurant-img';
 
-  /* Commented out, decided to use coming soon image saved as undefined.jpg
-
-  if(image.class == 'restaurant-img') {
-      image.src = './img/${restaurant.phtogograph).jpg';
-    } else {
-      image.src = './img/placeholder.jpg';
-  }*/
-
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   li.append(image);
-
 
 
   const alt = image.setAttribute('alt',restaurant.alt);

@@ -4,22 +4,22 @@
  */
 class DBHelper {
 
-  /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
-   */
-   static get DATABASE_URL() {
-       const port = 1337
-       return `http://localhost:${port}/restaurants`;
-   }
+/**
+ * Database URL.
+ * Change this to restaurants.json file location on your server.
+ */
+ static get DATABASE_URL() {
+     const port = 1337
+     return `http://localhost:${port}/restaurants`;
+ }
 
-/* code adapted from  https://github.com/udacity/mws-restaurant-stage-3/pull/3/files */
-
+// code adapted from  https://github.com/udacity/mws-restaurant-stage-3/pull/3/files
+/*
 static createRestaurantsStore(restaurants) {
   // Get the compatible IndexedDB version
   var indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB || window.shimIndexedDB;
    // Open (or create) the database
-  var open = indexedDB.open("RestaurantDB", 1);
+  var open = indexedDB.open("BeefDB", 1);
    // Create the schema
   open.onupgradeneeded = function() {
     var db = open.result;
@@ -94,7 +94,7 @@ static createRestaurantsStore(restaurants) {
     };
   }
  }
-
+*/
   /**
    * Fetch all restaurants.
   */
@@ -108,7 +108,7 @@ static createRestaurantsStore(restaurants) {
       fetch(fetchURL)
       .then(response => {
         response.json().then(restaurants => {
-        //console.log("restaurants JSON: ",restaurants);
+        console.log("restaurants JSON: ",restaurants);
         callback(null,restaurants);
       }).catch(function(err) {
         console.log('fetch error ', err);
