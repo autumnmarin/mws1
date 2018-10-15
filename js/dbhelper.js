@@ -2,7 +2,7 @@
 
 const dbPromise = {
   // creation and updating of database happens here.
-  db: idb.open('restaurant-reviews-db', 2, function (upgradeDb) {
+  db: idb.open('restaurant-reviews-db', 3, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
@@ -62,7 +62,7 @@ class DBHelper {
   */
   static fetchRestaurants(callback) {
       let xhr = new XMLHttpRequest();
-      xhr.open('GET', `${DBHelper.API_URL}/restaurants`);
+      xhr.open('GET', `http://localhost:${1337}/restaurants`);
       xhr.onload = () => {
         if (xhr.status === 200) { // Got a success response from server!
           const restaurants = JSON.parse(xhr.responseText);
@@ -233,7 +233,6 @@ class DBHelper {
       marker.addTo(newMap);
     return marker;
   }
-
 }
 
 if ('serviceWorker' in navigator) {
