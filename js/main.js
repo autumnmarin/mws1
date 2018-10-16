@@ -1,4 +1,4 @@
-/*Resubmission*/
+//adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
 let restaurants,
   neighborhoods,
@@ -6,22 +6,6 @@ let restaurants,
 var newMap
 var markers = []
 
-
-/*AP SW BEGIN*/
-
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('/sw.js').then(function(registration) {
-      // Registration was successful
-      console.log('ServiceWorker registration successful with scope: ', registration.scope);
-    }, function(err) {
-      // registration failed :(
-      console.log('ServiceWorker registration failed: ', err);
-    });
-  });
-}
-
-/*AP SW END*/
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
@@ -167,6 +151,7 @@ createRestaurantHTML = (restaurant) => {
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   li.append(image);
 
+
   const alt = image.setAttribute('alt',restaurant.alt);
 
   const name = document.createElement('h1');
@@ -206,13 +191,3 @@ addMarkersToMap = (restaurants = self.restaurants) => {
   });
 
 }
-/* addMarkersToMap = (restaurants = self.restaurants) => {
-  restaurants.forEach(restaurant => {
-    // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.map);
-    google.maps.event.addListener(marker, 'click', () => {
-      window.location.href = marker.url
-    });
-    self.markers.push(marker);
-  });
-} */

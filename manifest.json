@@ -1,0 +1,22 @@
+ {
+  "short_name": "restaurants",
+  "name": "mws-restaurant-stage-2",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "type": "image/png",
+      "sizes": "256x256"
+    },
+    {
+      "src": "/favicon.ico",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "scope": "/",
+  "display": "fullscreen",
+  "background_color": "#3335FF",
+  "orientation": "portrait",
+  "theme_color": "#3335FF"
+}

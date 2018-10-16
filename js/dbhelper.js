@@ -1,56 +1,120 @@
-/*Resubmission*/
+//adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
+
+const dbPromise = {
+  // create and update db
+  db: idb.open('restaurant-reviews-db', 5, function (upgradeDb) {
+    switch (upgradeDb.oldVersion) {
+      case 0:
+        upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
+    }
+  }),
+
+  /**
+   * Save restaurant array in idb
+   */
+  putRestaurants(restaurants) {
+    if (!restaurants.push) restaurants = [restaurants];
+    return this.db.then(db => {
+      const store = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
+      Promise.all(restaurants.map(networkRestaurant => {
+        return store.get(networkRestaurant.id).then(idbRestaurant => {
+          if (!idbRestaurant || networkRestaurant.updatedAt > idbRestaurant.updatedAt) {
+            return store.put(networkRestaurant);
+          }
+        });
+      })).then(function () {
+        return store.complete;
+      });
+    });
+  },
+
+  /**
+   * Get a restaurant by its id
+   */
+  getRestaurants(id = undefined) {
+    return this.db.then(db => {
+      const store = db.transaction('restaurants').objectStore('restaurants');
+      if (id) return store.get(Number(id));
+      return store.getAll();
+    });
+  },
+
+};
+
 
 /**
  * Common database helper functions.
  */
 class DBHelper {
 
-  /**
-   * Database URL.
-   * Change this to restaurants.json file location on your server.
-   */
-  static get DATABASE_URL() {
-    const port = 8000 // Change this to your server port
-    return `http://localhost:${port}/data/restaurants.json`;
-  }
+/**
+ * Database URL.
+ * Change this to restaurants.json file location on your server.
+ */
+ static get DATABASE_URL() {
+     const port = 1337
+     return `http://localhost:1337/restaurants`;
+ }
 
   /**
    * Fetch all restaurants.
-   */
+  */
   static fetchRestaurants(callback) {
-    let xhr = new XMLHttpRequest();
-    xhr.open('GET', DBHelper.DATABASE_URL);
-    xhr.onload = () => {
-      if (xhr.status === 200) { // Got a success response from server!
-        const json = JSON.parse(xhr.responseText);
-        const restaurants = json.restaurants;
-        callback(null, restaurants);
-      } else { // Oops!. Got an error from server.
-        const error = (`Request failed. Returned status of ${xhr.status}`);
-        callback(error, null);
+      let xhr = new XMLHttpRequest();
+      xhr.open('GET', `http://localhost:1337/restaurants`);
+      xhr.onload = () => {
+        if (xhr.status === 200) { // Got a success response from server!
+          const restaurants = JSON.parse(xhr.responseText);
+          dbPromise.putRestaurants(restaurants);
+          callback(null, restaurants);
+        } else { // Oops!. Got an error from server.
+          console.log(`Request failed. Returned status of ${xhr.status}, trying idb...`);
+          // if xhr request isn't code 200, try idb
+          dbPromise.getRestaurants().then(idbRestaurants => {
+            // if we get back more than 1 restaurant from idb, return idbRestaurants
+            if (idbRestaurants.length > 0) {
+              callback(null, idbRestaurants)
+            } else { // if we got back 0 restaurants return an error
+              callback('No restaurants found in idb', null);
+            }
+          });
+        }
+      };
+      // XHR needs error handling for when server is down (doesn't respond or sends back codes)
+      xhr.onerror = () => {
+        console.log('Error while trying XHR, trying idb...');
+        // try idb, and if we get restaurants back, return them, otherwise return an error
+        dbPromise.getRestaurants().then(idbRestaurants => {
+          if (idbRestaurants.length > 0) {
+            callback(null, idbRestaurants)
+          } else {
+            callback('No restaurants found in idb', null);
+          }
+        });
       }
-    };
-    xhr.send();
-  }
+      xhr.send();
+    }
 
   /**
    * Fetch a restaurant by its ID.
    */
-  static fetchRestaurantById(id, callback) {
-    // fetch all restaurants with proper error handling.
-    DBHelper.fetchRestaurants((error, restaurants) => {
-      if (error) {
-        callback(error, null);
-      } else {
-        const restaurant = restaurants.find(r => r.id == id);
-        if (restaurant) { // Got the restaurant
-          callback(null, restaurant);
-        } else { // Restaurant does not exist in the database
-          callback('Restaurant does not exist', null);
-        }
-      }
-    });
-  }
+   static fetchRestaurantById(id, callback) {
+     fetch(`http://localhost:1337/restaurants/${id}`).then(response => {
+       if (!response.ok) return Promise.reject("Restaurant couldn't be fetched from network");
+       return response.json();
+     }).then(fetchedRestaurant => {
+       // if restaurant could be fetched from network:
+       dbPromise.putRestaurants(fetchedRestaurant);
+       return callback(null, fetchedRestaurant);
+     }).catch(networkError => {
+       // if restaurant couldn't be fetched from network:
+       console.log(`${networkError}, trying idb.`);
+       dbPromise.getRestaurants(id).then(idbRestaurant => {
+         if (!idbRestaurant) return callback("Restaurant not found in idb either", null);
+         return callback(null, idbRestaurant);
+       });
+     });
+   }
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
@@ -145,14 +209,14 @@ class DBHelper {
    * Restaurant page URL.
    */
   static urlForRestaurant(restaurant) {
-    return (`./restaurant.html?id=${restaurant.id}`);
+    return (`./restaurants/id${restaurant.id}`);
   }
 
   /**
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}`);
+    return (`/img/${restaurant.photograph}.webp`);
   }
 
   /**
@@ -168,17 +232,6 @@ class DBHelper {
       marker.addTo(newMap);
     return marker;
   }
-  /* static mapMarkerForRestaurant(restaurant, map) {
-    const marker = new google.maps.Marker({
-      position: restaurant.latlng,
-      title: restaurant.name,
-      url: DBHelper.urlForRestaurant(restaurant),
-      map: map,
-      animation: google.maps.Animation.DROP}
-    );
-    return marker;
-  } */
-
 }
 
 if ('serviceWorker' in navigator) {

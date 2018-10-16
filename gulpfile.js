@@ -1,10 +1,8 @@
-var gulp = require('gulp');
-var smushit = require('gulp-smushit');
+const gulp = require('gulp');
 
-gulp.task('default', function () {
-    return gulp.src('images/*')
-        .pipe(smushit({
-            verbose: true
-        }))
-        .pipe(gulp.dest('smushit-img'));
-});
+
+gulp.task('default', () =>
+    gulp.src('img/*.jpg')
+        .pipe(webp())
+        .pipe(gulp.dest('dist'))
+);
