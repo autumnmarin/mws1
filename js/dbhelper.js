@@ -1,8 +1,8 @@
 //adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
 const dbPromise = {
-  // creation and updating of database happens here.
-  db: idb.open('restaurant-reviews-db', 3, function (upgradeDb) {
+  // create and update db
+  db: idb.open('restaurant-reviews-db', 5, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
@@ -10,7 +10,7 @@ const dbPromise = {
   }),
 
   /**
-   * Save a restaurant or array of restaurants into idb, using promises.
+   * Save restaurant array in idb
    */
   putRestaurants(restaurants) {
     if (!restaurants.push) restaurants = [restaurants];
@@ -29,8 +29,7 @@ const dbPromise = {
   },
 
   /**
-   * Get a restaurant, by its id, or all stored restaurants in idb using promises.
-   * If no argument is passed, all restaurants will returned.
+   * Get a restaurant by its id
    */
   getRestaurants(id = undefined) {
     return this.db.then(db => {
@@ -54,7 +53,7 @@ class DBHelper {
  */
  static get DATABASE_URL() {
      const port = 1337
-     return `http://localhost:${port}/restaurants`;
+     return `http://localhost:1337/restaurants`;
  }
 
   /**
@@ -62,7 +61,7 @@ class DBHelper {
   */
   static fetchRestaurants(callback) {
       let xhr = new XMLHttpRequest();
-      xhr.open('GET', `http://localhost:${1337}/restaurants`);
+      xhr.open('GET', `http://localhost:1337/restaurants`);
       xhr.onload = () => {
         if (xhr.status === 200) { // Got a success response from server!
           const restaurants = JSON.parse(xhr.responseText);
@@ -100,7 +99,7 @@ class DBHelper {
    * Fetch a restaurant by its ID.
    */
    static fetchRestaurantById(id, callback) {
-     fetch(`${DBHelper.API_URL}/restaurants/${id}`).then(response => {
+     fetch(`http://localhost:1337/restaurants/${id}`).then(response => {
        if (!response.ok) return Promise.reject("Restaurant couldn't be fetched from network");
        return response.json();
      }).then(fetchedRestaurant => {
@@ -210,7 +209,7 @@ class DBHelper {
    * Restaurant page URL.
    */
   static urlForRestaurant(restaurant) {
-    return (`./restaurant.html?id=${restaurant.id}`);
+    return (`./restaurants/id${restaurant.id}`);
   }
 
   /**
