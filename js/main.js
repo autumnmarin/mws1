@@ -1,3 +1,5 @@
+//Resubmit #2
+
 //adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
 let restaurants,
@@ -152,7 +154,7 @@ createRestaurantHTML = (restaurant) => {
   li.append(image);
 
 
-  const alt = image.setAttribute('alt',restaurant.alt);
+  const alt = image.setAttribute('alt','Picture of '+ restaurant.name);
 
   const name = document.createElement('h1');
   name.innerHTML = restaurant.name;
