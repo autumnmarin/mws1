@@ -73,6 +73,10 @@ h2{
 	padding-left: 7px;
 }
 
+h3{
+	font:size: 1.25em;
+}
+
 article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
 	display: block;
 }
