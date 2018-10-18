@@ -48,7 +48,27 @@
       <table id="restaurant-hours"></table>
     </section>
     <!-- end restaurant -->
-
+    <!--add review form-->
+    <form action="http://localhost:1337/reviews" method="post">
+      <br><h4>Review Form</h4>
+      Name:<br>
+      <input type="text" name="Name">
+      <br><br>
+      Star Rating:<br>
+      <select id="rating" name="rating">
+         <option value="1">1</option>
+         <option value="2">2</option>
+         <option value="3">3</option>
+         <option value="4">4</option>
+         <option value="5">5</option>
+       </select>
+       <br><br>
+       Comments:<br>
+      <input type="text" name="Comments">
+      <br><br>
+      <input type="submit" value="Submit">
+    </form>
+    <!--end review form-->
     <!-- Beginning reviews -->
     <section id="reviews-container">
       <ul id="reviews-list"></ul>
