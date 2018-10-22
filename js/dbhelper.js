@@ -115,6 +115,18 @@ class DBHelper {
        });
      });
    }
+static fetchReviewsByRestaurantId(id) {
+  return fetch(`http://localhost:1337/reviews/?restaurant_id=${id}`).then(response => {
+    if(!response.ok) return Promise.reject("Reviews not fetched");
+    return response.json();
+  }).then(fetchedReviews=> {
+    return fetchedReviews;
+  }).catch(networkError => {
+    console.log('network error here');
+    return null;
+  });
+}
+
 
   /**
    * Fetch restaurants by a cuisine type with proper error handling.
@@ -233,7 +245,7 @@ class DBHelper {
     return marker;
   }
 }
-
+/*
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js').then(function(registration) {
@@ -245,3 +257,4 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
+*/
