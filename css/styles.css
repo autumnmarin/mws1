@@ -15,6 +15,26 @@
 	  width: 100% !important;
 		display: block !important;
 	}
+
+	/* Default button style when not toggled */
+	button.fav {
+		float: left;
+		/*position: absolute;*/
+		background-color: red;
+		/*cursor: pointer;*/
+	}
+	/* Button style when button is toggled */
+	button.fav[aria-pressed=true] {
+		background-color: #red;
+		color: white;
+	}
+	/* Accessible and easy to spot styles for our buttons when hovered and focused */
+	button.fav:hover,
+		color: red;
+	button.fav:focus {
+		color: gray;
+		}
+
 #restaurants-list li{
 	max-width: 97% !important;
 }

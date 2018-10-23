@@ -2,7 +2,7 @@
 
 const dbPromise = {
   // create and update db
-  db: idb.open('restaurant-reviews-db', 19, function (upgradeDb) {
+  db: idb.open('restaurant-reviews-db', 23, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
@@ -15,13 +15,14 @@ const dbPromise = {
   /**
    * Save restaurant array in idb
    */
-  putRestaurants(restaurants) {
-    if (!restaurants.push) restaurants = [restaurants];
-    return this.db.then(db => {
-      const store = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
+   putRestaurants(restaurants, forceUpdate = false) {
+     if (!restaurants.push) restaurants = [restaurants];
+     return this.db.then(db => {
+       const store = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
       Promise.all(restaurants.map(networkRestaurant => {
         return store.get(networkRestaurant.id).then(idbRestaurant => {
-          if (!idbRestaurant || networkRestaurant.updatedAt > idbRestaurant.updatedAt) {
+          if (forceUpdate) return store.put(networkRestaurant);
+          if (!idbRestaurant || new Date(networkRestaurant.updatedAt) > new Date(idbRestaurant.updatedAt)) {
             return store.put(networkRestaurant);
           }
         });
@@ -50,16 +51,16 @@ const dbPromise = {
      return this.db.then(db => {
        const store = db.transaction('reviews', 'readwrite').objectStore('reviews');
        Promise.all(reviews.map(networkReview => {
-         return store.get(networkReview.id).then(idbReview => {
-           if (!idbReview || networkReview.updatedAt > idbReview.updatedAt) {
-             return store.put(networkReview);
-           }
-         });
-       })).then(function () {
-         return store.complete;
-       });
-     });
-   },
+               return store.get(networkReview.id).then(idbReview => {
+                 if (!idbReview || new Date(networkReview.updatedAt) > new Date(idbReview.updatedAt)) {
+                   return store.put(networkReview);
+                 }
+               });
+             })).then(function () {
+               return store.complete;
+             });
+           });
+         },
 
    /**
     * Get
@@ -72,6 +73,32 @@ const dbPromise = {
    },
 
 };
+
+
+
+
+
+function handleClick() {
+  const restaurantId = this.dataset.id;
+  const fav = this.getAttribute('aria-pressed') == 'true';
+  const url = `http://localhost:1337/restaurants/${restaurantId}/?is_favorite=${!fav}`;
+  const PUT = {method: 'PUT'};
+
+  // TODO: use Background Sync to sync data with API server
+  return fetch(url, PUT).then(response => {
+    if (!response.ok) return Promise.reject("We couldn't mark restaurant as favorite.");
+    return response.json();
+  }).then(updatedRestaurant => {
+    // update restaurant on idb
+    dbPromise.putRestaurants(updatedRestaurant, true);
+    // change state of toggle button
+    this.setAttribute('aria-pressed', !fav);
+  });
+}
+
+
+
+
 
 
 /**

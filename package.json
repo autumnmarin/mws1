@@ -10,7 +10,9 @@
     "imagemin": "^6.0.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.1.2",
     "gulp": "^3.9.1",
+    "gulp-babel": "^8.0.0-beta.2",
     "gulp-image-resize": "^0.13.0",
     "gulp-imagemin": "^4.1.0",
     "gulp-webp": "^3.0.0"

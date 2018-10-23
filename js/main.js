@@ -8,6 +8,20 @@ let restaurants,
 var newMap
 var markers = []
 
+
+function favoriteButton(restaurant) {
+  const button = document.createElement('button');
+  button.innerHTML = "&#x2764;"; // this is the heart symbol in hex code
+  button.className = "fav"; // you can use this class name to style your button
+  button.dataset.id = restaurant.id; // store restaurant id in dataset for later
+  button.setAttribute('aria-label', `Mark ${restaurant.name} as a favorite`);
+  button.setAttribute('aria-pressed', restaurant.is_favorite);
+  button.onclick = handleClick;
+
+  return button;
+}
+
+
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
@@ -146,6 +160,9 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  */
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
+
+  const favButton = favoriteButton(restaurant);
+  li.append(favButton);
 
   const image = document.createElement('img');
   image.className = 'restaurant-img';
