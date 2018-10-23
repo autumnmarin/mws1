@@ -2,10 +2,13 @@
 
 const dbPromise = {
   // create and update db
-  db: idb.open('restaurant-reviews-db', 5, function (upgradeDb) {
+  db: idb.open('restaurant-reviews-db', 19, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
+      case 1:
+        upgradeDb.createObjectStore('reviews', { keyPath: 'id' })
+        .createIndex('restaurant_id', 'restaurant_id');
     }
   }),
 
@@ -38,6 +41,35 @@ const dbPromise = {
       return store.getAll();
     });
   },
+
+   /**
+    * Put Reviews
+    */
+   putReviews(reviews) {
+     if (!reviews.push) reviews = [reviews];
+     return this.db.then(db => {
+       const store = db.transaction('reviews', 'readwrite').objectStore('reviews');
+       Promise.all(reviews.map(networkReview => {
+         return store.get(networkReview.id).then(idbReview => {
+           if (!idbReview || networkReview.updatedAt > idbReview.updatedAt) {
+             return store.put(networkReview);
+           }
+         });
+       })).then(function () {
+         return store.complete;
+       });
+     });
+   },
+
+   /**
+    * Get
+    */
+   getReviewsForRestaurant(id) {
+     return this.db.then(db => {
+       const storeIndex = db.transaction('reviews').objectStore('reviews').index('restaurant_id');
+       return storeIndex.getAll(Number(id));
+     });
+   },
 
 };
 
@@ -104,6 +136,7 @@ class DBHelper {
        return response.json();
      }).then(fetchedRestaurant => {
        // if restaurant could be fetched from network:
+
        dbPromise.putRestaurants(fetchedRestaurant);
        return callback(null, fetchedRestaurant);
      }).catch(networkError => {
@@ -115,17 +148,27 @@ class DBHelper {
        });
      });
    }
-static fetchReviewsByRestaurantId(id) {
-  return fetch(`http://localhost:1337/reviews/?restaurant_id=${id}`).then(response => {
-    if(!response.ok) return Promise.reject("Reviews not fetched");
-    return response.json();
-  }).then(fetchedReviews=> {
-    return fetchedReviews;
-  }).catch(networkError => {
-    console.log('network error here');
-    return null;
-  });
-}
+
+   static fetchReviewsByRestaurantId(restaurant_id) {
+     return fetch(`http://localhost:1337/reviews/?restaurant_id=${restaurant_id}`).then(response => {
+       if (!response.ok) return Promise.reject("Reviews couldn't be fetched from network");
+       return response.json();
+     }).then(fetchedReviews => {
+       // if reviews could be fetched from network:
+       // store reviews on idb
+       dbPromise.putReviews(fetchedReviews);
+       return fetchedReviews;
+     }).catch(networkError => {
+       // if reviews couldn't be fetched from network:
+       // try to get reviews from idb
+       console.log(`${networkError}, trying idb.`);
+       return dbPromise.getReviewsForRestaurant(restaurant_id).then(idbReviews => {
+         // if no reviews were found on idb return null
+         if (idbReviews.length < 1) return null;
+         return idbReviews;
+       });
+     });
+   }
 
 
   /**
@@ -245,7 +288,7 @@ static fetchReviewsByRestaurantId(id) {
     return marker;
   }
 }
-/*
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     navigator.serviceWorker.register('/sw.js').then(function(registration) {
@@ -257,4 +300,3 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
-*/
