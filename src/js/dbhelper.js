@@ -1,5 +1,7 @@
 //adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
+
+
 const dbPromise = {
   // create and update db
   db: idb.open('restaurant-reviews-db', 24, function (upgradeDb) {
@@ -271,7 +273,7 @@ class DBHelper {
    * Restaurant image URL.
    */
   static imageUrlForRestaurant(restaurant) {
-    return (`/img/${restaurant.photograph}.webp`);
+    return (`./img/${restaurant.photograph}.webp`);
   }
 
   /**

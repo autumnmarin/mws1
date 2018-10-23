@@ -26,7 +26,7 @@ const paths = {
     src: 'src/**/*.js',
     dest: 'dist/',
     // don't add the src folder to path. Use a path relative to the src folder. Use array even if only one bundle.
-    bundles: ['js/main.js', 'js/restaurant_info.js', 'sw.js','js/dbhelper.js','.js/favorite-button.js','.js/dbPromise.js']
+    bundles: ['js/main.js', 'js/restaurant_info.js', 'sw.js','js/dbhelper.js','.js/favorite-button.js','.js/dbPromise.js','js/idb.js']
   }
 };
 
@@ -48,30 +48,7 @@ gulp.task('clean', function(done) {
   return del(['dist/'], done);
 });
 
-// task for creating responsive images
-gulp.task('responsive:images', function() {
-  log(c.cyan('Creating Responsive images...'));
-  return gulp.src(paths.responsive.src)
-    .pipe(responsive({
-      // Here is where you can change sizes and suffixes to fit your needs. Right now
-      // we are resizing all jpg images to three different sizes: 300, 600 and 800 px wide.
 
-      '**/*.jpg': [{
-        width: 800,
-        quality: 70,
-        rename: { suffix: '-large'}
-      }, {
-        width: 600,
-        quality: 50,
-        rename: { suffix: '-medium'}
-      }, {
-        width: 300,
-        quality: 40,
-        rename: { suffix: '-small'}
-      }]
-    },))
-    .pipe(gulp.dest(paths.responsive.dest));
-});
 
 // task for copying all files not handled by other tasks. copy.src is used on this task
 gulp.task('copy', function() {
