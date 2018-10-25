@@ -1,10 +1,39 @@
 //adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
+function handleClick() {
+  const restaurantId = this.dataset.id;
+  const fav = this.getAttribute('aria-pressed') == 'true';
+  const url = `http://localhost:1337/restaurants/${restaurantId}/?is_favorite=${!fav}`;
+  const PUT = {method: 'PUT'};
 
+  // TODO: use Background Sync to sync data with API server
+  return fetch(url, PUT).then(response => {
+    if (!response.ok) return Promise.reject("We couldn't mark restaurant as favorite.");
+    return response.json();
+  }).then(updatedRestaurant => {
+    // update restaurant on idb
+    dbPromise.putRestaurants(updatedRestaurant, true);
+    // change state of toggle button
+    this.setAttribute('aria-pressed', !fav);
+  });
+}
+
+
+function favoriteButton(restaurant) {
+  const button = document.createElement('button');
+  button.innerHTML = "&#x2764;"; // this is the heart symbol in hex code
+  button.className = "fav"; // you can use this class name to style your button
+  button.dataset.id = restaurant.id; // store restaurant id in dataset for later
+  button.setAttribute('aria-label', `Mark ${restaurant.name} as a favorite`);
+  button.setAttribute('aria-pressed', restaurant.is_favorite);
+  button.onclick = handleClick;
+
+  return button;
+}
 
 const dbPromise = {
   // create and update db
-  db: idb.open('restaurant-reviews-db', 24, function (upgradeDb) {
+  db: idb.open('restaurant-reviews-db', 25, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });

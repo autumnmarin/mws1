@@ -1,8 +1,4 @@
-
-
 //adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
-/*import favoriteButton from './favorite-button';*/
-
 
 let restaurants,
   neighborhoods,
@@ -149,17 +145,17 @@ const fillRestaurantsHTML = (restaurants = self.restaurants) => {
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
-  /*const favButton = favoriteButton(restaurant);
-  li.append(favButton);*/
-
   const image = document.createElement('img');
   image.className = 'restaurant-img';
 
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
   li.append(image);
 
+  const favButton = favoriteButton(restaurant);
+  li.append(favButton);
 
   const alt = image.setAttribute('alt','Picture of '+ restaurant.name);
+
 
   const name = document.createElement('h2');
   name.innerHTML = restaurant.name;
