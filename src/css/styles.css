@@ -63,7 +63,7 @@ a img{
 
 /* Default button style when not toggled */
 button.fav {
-	color: red;
+	color: pink;
 	background-color: white;
 	border: none;
 	float: right;
@@ -71,7 +71,7 @@ button.fav {
 }
 /* Button style when button is toggled */
 button.fav[aria-pressed=true] {
-
+	color: red;
 }
 /* Accessible and easy to spot styles for our buttons when hovered and focused */
 button.fav:hover,
