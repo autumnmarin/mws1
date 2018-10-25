@@ -26,7 +26,19 @@ const paths = {
     src: 'src/**/*.js',
     dest: 'dist/',
     // don't add the src folder to path. Use a path relative to the src folder. Use array even if only one bundle.
-    bundles: ['js/main.js', 'js/restaurant_info.js', 'sw.js','js/dbhelper.js','.js/favorite-button.js','.js/dbPromise.js','js/idb.js']
+    bundles: [
+    'js/dbhelper.js',
+    'js/dbPromise.js',
+    'js/favorite-button.js',
+    'js/idb.js',
+    'js/main.js',
+    'js/restaurant_info.js',
+    'sw.js',
+
+
+
+
+  ]
   }
 };
 
