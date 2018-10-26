@@ -1,4 +1,4 @@
-var CACHE_NAME = 'apcachev7';
+var CACHE_NAME = 'apcachev8';
 var urlsToCache = [
     '/',
     '/css/styles.css',
@@ -17,7 +17,6 @@ var urlsToCache = [
     '/js/idb.js',
     '/js/main.js',
     '/js/restaurant_info.js',
-    'favicon.ico',
     'index.html',
     'manifest.json',
     'restaurant.html',
@@ -31,6 +30,7 @@ var urlsToCache = [
     'restaurant.html?id=8',
     'restaurant.html?id=9',
     'restaurant.html?id=10',
+    'favicon.ico',
   ];
 
 self.addEventListener('install', function(event) {

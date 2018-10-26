@@ -2,7 +2,7 @@
 
 const dbPromise = {
   // create and update db
-  db: idb.open('restaurant-reviews-db', 5, function (upgradeDb) {
+  db: idb.open('restaurant-reviews-db', 26, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
