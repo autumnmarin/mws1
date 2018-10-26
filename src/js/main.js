@@ -1,5 +1,6 @@
 //adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
+
 let restaurants,
   neighborhoods,
   cuisines
