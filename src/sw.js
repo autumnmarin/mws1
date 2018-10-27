@@ -86,5 +86,7 @@ function syncFavorites() {
       });
     });
 
+  }).then(function(){
+    dbPromise.clearOfflineFavorites();
   })
 }

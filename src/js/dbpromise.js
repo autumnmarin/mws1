@@ -1,5 +1,6 @@
 import idb from 'idb';
 
+
 const dbPromise = {
   db: idb.open('restaurant-reviews-db', 3, function(upgradeDb) {
     switch (upgradeDb.oldVersion) {
@@ -86,6 +87,13 @@ const dbPromise = {
     return this.db.then(db => {
       const store = db.transaction('offline-favorites', 'readwrite').objectStore('offline-favorites');
       store.put(data);
+    })
+  },
+
+  clearOfflineFavorites(){
+    return this.db.then(db => {
+        const store = db.transaction('offline-favorites', 'readwrite').objectStore('offline-favorites');
+        return store.clear();
     })
   },
 
