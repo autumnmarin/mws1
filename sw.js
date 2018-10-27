@@ -1,7 +1,11 @@
 var CACHE_NAME = 'apcachev9';
 var urlsToCache = [
     '/',
-
+    '/css/styles.css',
+    '/img/1.webp',
+    '/img/2.webp',
+    '/img/3.webp',
+    'index.html'
   ];
 
 self.addEventListener('install', function(event) {
