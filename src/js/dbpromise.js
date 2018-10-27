@@ -1,25 +1,26 @@
-import idb from 'idb'
+import idb from 'idb';
 
 const dbPromise = {
-  // create and update db
-
-  db: idb.open('restaurant-reviews-db', 2, function (upgradeDb) {
+  db: idb.open('restaurant-reviews-db', 3, function(upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
       case 1:
         upgradeDb.createObjectStore('reviews', { keyPath: 'id' })
-        .createIndex('restaurant_id', 'restaurant_id');
+          .createIndex('restaurant_id', 'restaurant_id');
+      case 2:
+        upgradeDb.createObjectStore('offline-favorites', { keyPath: 'id' } )
     }
   }),
 
   /**
-   * Save restaurant array in idb
+   * Save a restaurant or array of restaurants into idb, using promises. If second argument
+   * is passed a boolean true, data will be forcibly updated.
    */
-   putRestaurants(restaurants, forceUpdate = false) {
-     if (!restaurants.push) restaurants = [restaurants];
-     return this.db.then(db => {
-       const store = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
+  putRestaurants(restaurants, forceUpdate = false) {
+    if (!restaurants.push) restaurants = [restaurants];
+    return this.db.then(db => {
+      const store = db.transaction('restaurants', 'readwrite').objectStore('restaurants');
       Promise.all(restaurants.map(networkRestaurant => {
         return store.get(networkRestaurant.id).then(idbRestaurant => {
           if (forceUpdate) return store.put(networkRestaurant);
@@ -34,7 +35,8 @@ const dbPromise = {
   },
 
   /**
-   * Get a restaurant by its id
+   * Get a restaurant, by its id, or all stored restaurants in idb using promises.
+   * If no argument is passed, all restaurants will returned.
    */
   getRestaurants(id = undefined) {
     return this.db.then(db => {
@@ -44,35 +46,49 @@ const dbPromise = {
     });
   },
 
-   /**
-    * Put Reviews
-    */
-   putReviews(reviews) {
-     if (!reviews.push) reviews = [reviews];
-     return this.db.then(db => {
-       const store = db.transaction('reviews', 'readwrite').objectStore('reviews');
-       Promise.all(reviews.map(networkReview => {
-           return store.get(networkReview.id).then(idbReview => {
-             if (!idbReview || new Date(networkReview.updatedAt) > new Date(idbReview.updatedAt)) {
-               return store.put(networkReview);
-                 }
-               });
-             })).then(function () {
-               return store.complete;
-             });
-           });
-         },
+  /**
+   * Save a review or array of reviews into idb, using promises
+   */
+  putReviews(reviews) {
+    if (!reviews.push) reviews = [reviews];
+    return this.db.then(db => {
+      const store = db.transaction('reviews', 'readwrite').objectStore('reviews');
+      Promise.all(reviews.map(networkReview => {
+        return store.get(networkReview.id).then(idbReview => {
+          if (!idbReview || new Date(networkReview.updatedAt) > new Date(idbReview.updatedAt)) {
+            return store.put(networkReview);
+          }
+        });
+      })).then(function () {
+        return store.complete;
+      });
+    });
+  },
 
-   /**
-    * Get
-    */
-   getReviewsForRestaurant(id) {
-     return this.db.then(db => {
-       const storeIndex = db.transaction('reviews').objectStore('reviews').index('restaurant_id');
-       return storeIndex.getAll(Number(id));
-     });
-   },
+  /**
+   * Get all reviews for a specific restaurant, by its id, using promises.
+   */
+  getReviewsForRestaurant(id) {
+    return this.db.then(db => {
+      const storeIndex = db.transaction('reviews').objectStore('reviews').index('restaurant_id');
+      return storeIndex.getAll(Number(id));
+    });
+  },
+
+  getOfflineFavorites() {
+    return this.db.then(db => {
+      const store = db.transaction('offline-favorites').objectStore('offline-favorites');
+      return store.getAll();
+    });
+  },
+
+  putOfflineFavorite(data) {
+    return this.db.then(db => {
+      const store = db.transaction('offline-favorites', 'readwrite').objectStore('offline-favorites');
+      store.put(data);
+    })
+  },
 
 };
 
-export default dbPromise
+export default dbPromise;
