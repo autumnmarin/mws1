@@ -1,5 +1,4 @@
 import gulp from 'gulp';
-import responsive from 'gulp-responsive';
 import del from 'del';
 import newer from 'gulp-newer';
 import runSequence from 'run-sequence';
@@ -18,26 +17,14 @@ const browserSync = require('browser-sync').create();
 
 // Add src and dest paths to files you will handle in tasks here. For js files, also add bundles to create
 const paths = {
-  responsive: {
-    src: 'src/images/**/*.jpg',
-    dest: 'dist/img/'
-  },
   js: {
     src: 'src/**/*.js',
     dest: 'dist/',
     // don't add the src folder to path. Use a path relative to the src folder. Use array even if only one bundle.
     bundles: [
-    'js/dbhelper.js',
-    'js/dbPromise.js',
-    'js/favorite-button.js',
-    'js/idb.js',
     'js/main.js',
     'js/restaurant_info.js',
     'sw.js',
-
-
-
-
   ]
   }
 };
@@ -74,7 +61,7 @@ gulp.task('copy', function() {
 gulp.task('build', function(done) {
   return runSequence(
     'clean',
-    ['responsive:images', 'js:bundle'],
+    ['js:bundle'],
     'copy', // copy is done last, so is easy to see what's been copied.
     done
   )
@@ -89,7 +76,6 @@ gulp.task('sync', ['build'], function() {
     }
   });
 
-  gulp.watch(paths.responsive.src, ['responsive:images']).on('change', browserSync.reload);
   gulp.watch(copy.src, ['copy']).on('change', browserSync.reload);
 
   // each bundle on 'update' will call browserSync.stream() at the end of the pipe

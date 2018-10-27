@@ -18,7 +18,7 @@ function handleClick() {
 }
 
 
-function favoriteButton(restaurant) {
+export default function favoriteButton(restaurant) {
   const button = document.createElement('button');
   button.innerHTML = "&#x2764;"; // this is the heart symbol in hex code
   button.className = "fav"; // you can use this class name to style your button

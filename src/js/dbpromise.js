@@ -1,7 +1,9 @@
+import idb from 'idb'
 
 const dbPromise = {
   // create and update db
-  db: idb.open('restaurant-reviews-db', 25, function (upgradeDb) {
+
+  db: idb.open('restaurant-reviews-db', 2, function (upgradeDb) {
     switch (upgradeDb.oldVersion) {
       case 0:
         upgradeDb.createObjectStore('restaurants', { keyPath: 'id' });
@@ -72,3 +74,5 @@ const dbPromise = {
    },
 
 };
+
+export default dbPromise

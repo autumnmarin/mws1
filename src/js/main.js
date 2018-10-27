@@ -1,5 +1,8 @@
 //adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
 
+import './sw-register'
+import DBHelper from './dbhelper'
+import favoriteButton from './favorite-button'
 
 let restaurants,
   neighborhoods,
@@ -75,7 +78,7 @@ const fillCuisinesHTML = (cuisines = self.cuisines) => {
  * Initialize leaflet map, called from HTML.
  */
 const initMap = () => {
-  self.newMap = L.map('map', {
+  newMap = L.map('map', {
         center: [40.722216, -73.987501],
         zoom: 12,
         scrollWheelZoom: false
@@ -143,7 +146,7 @@ const fillRestaurantsHTML = (restaurants = self.restaurants) => {
 /**
  * Create restaurant HTML.
  */
-createRestaurantHTML = (restaurant) => {
+const createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
 
   const image = document.createElement('img');
@@ -187,7 +190,7 @@ createRestaurantHTML = (restaurant) => {
 const addMarkersToMap = (restaurants = self.restaurants) => {
   restaurants.forEach(restaurant => {
     // Add marker to the map
-    const marker = DBHelper.mapMarkerForRestaurant(restaurant, self.newMap);
+    const marker = DBHelper.mapMarkerForRestaurant(restaurant, newMap);
     marker.on("click", onClick);
     function onClick() {
       window.location.href = marker.options.url;
