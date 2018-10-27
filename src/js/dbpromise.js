@@ -72,5 +72,3 @@ const dbPromise = {
    },
 
 };
-
-export default dbPromise;
