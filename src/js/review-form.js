@@ -4,7 +4,7 @@ import DBHelper from "./dbhelper";
 import dbPromise from "./dbpromise";
 
 /**
- * Function creates li for reviews, apends to list
+ * Function creates li, apends to list
  */
 
  function createReviewHTML(review) {
@@ -96,7 +96,7 @@ function handleSubmit(e) {
 
   // TODO: use Background Sync to sync data with API server
   return fetch(url, POST).then(response => {
-    if (!response.ok) return Promise.reject("We couldn't post review to server.");
+    if (!response.ok) return Promise.reject("Could not post review to server.");
     return response.json();
   }).then(newNetworkReview => {
     // save new review on idb
@@ -111,7 +111,7 @@ function handleSubmit(e) {
 }
 
 /**
- * Returns a form element for posting new reviews.
+ * Return a form element to post new reviews
  */
 export default function reviewForm(restaurantId) {
   const form = document.createElement('form');
@@ -160,7 +160,7 @@ export default function reviewForm(restaurantId) {
   addButton.setAttribute('type', 'submit');
   addButton.setAttribute('aria-label', 'Add Review');
   addButton.classList.add('add-review');
-  addButton.innerHTML = "<span>+</span>";
+  addButton.innerHTML = "<span>Submit</span>";
   p.appendChild(addButton);
   form.appendChild(p);
 

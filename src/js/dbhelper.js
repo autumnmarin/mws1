@@ -28,7 +28,7 @@ export default class DBHelper {
           dbPromise.putRestaurants(restaurants);
           callback(null, restaurants);
         } else { // Oops!. Got an error from server.
-          console.log(`Request failed. Returned status of ${xhr.status}, trying idb...`);
+          console.log(`Request failed on fetchRestaurants with a status of ${xhr.status}, checking idb...`);
           // if xhr request isn't code 200, try idb
           dbPromise.getRestaurants().then(idbRestaurants => {
             // if we get back more than 1 restaurant from idb, return idbRestaurants
@@ -42,7 +42,7 @@ export default class DBHelper {
       };
       // XHR needs error handling for when server is down (doesn't respond or sends back codes)
       xhr.onerror = () => {
-        console.log('Error while trying XHR, trying idb...');
+        console.log('Error with XHR, checking idb...');
         // try idb, and if we get restaurants back, return them, otherwise return an error
         dbPromise.getRestaurants().then(idbRestaurants => {
           if (idbRestaurants.length > 0) {
@@ -69,7 +69,7 @@ export default class DBHelper {
        return callback(null, fetchedRestaurant);
      }).catch(networkError => {
        // if restaurant couldn't be fetched from network:
-       console.log(`${networkError}, trying idb.`);
+       console.log(`${networkError}, checking idb.`);
        dbPromise.getRestaurants(id).then(idbRestaurant => {
          if (!idbRestaurant) return callback("Restaurant not found in idb either", null);
          return callback(null, idbRestaurant);
@@ -82,16 +82,14 @@ export default class DBHelper {
        if (!response.ok) return Promise.reject("Reviews couldn't be fetched from network");
        return response.json();
      }).then(fetchedReviews => {
-       // if reviews could be fetched from network:
-       // store reviews on idb
+       // store reviews in idb
        dbPromise.putReviews(fetchedReviews);
        return fetchedReviews;
      }).catch(networkError => {
-       // if reviews couldn't be fetched from network:
-       // try to get reviews from idb
-       console.log(`${networkError}, trying idb.`);
+       // if no reviews available, check with idb
+       console.log(`${networkError}, checking idb.`);
        return dbPromise.getReviewsForRestaurant(restaurant_id).then(idbReviews => {
-         // if no reviews were found on idb return null
+         // no idb data
          if (idbReviews.length < 1) return null;
          return idbReviews;
        });

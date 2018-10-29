@@ -33,7 +33,7 @@ html, body {
     overflow-x: hidden;
 }
 
-body,td,th,p{
+body,td,th{
 	font-family: Arial, Helvetica, sans-serif;
 	font-size: 12pt;
 	color: #333;
@@ -69,16 +69,14 @@ button.fav {
 	float: right;
 
 }
-/* Button style when button is toggled */
+/* Toggle button*/
 button.fav[aria-pressed=true] {
 	color: red;
 }
-/* Accessible and easy to spot styles for our buttons when hovered and focused */
+
 button.fav:hover,
 button.fav:focus {
-
 }
-
 
 h1, h2, h3, h4, h5, h6 {
   font-family: Arial, Helvetica, sans-serif;
@@ -99,6 +97,7 @@ h2{
 
 h3{
 	font:size: 1.25em;
+	font-color: #3335ff;
 }
 
 article, aside, canvas, details, figcaption, figure, footer, header, hgroup, menu, nav, section {
@@ -108,7 +107,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 #maincontent {
   background-color: #f3f3f3;
   min-height: 100%;
-}
+}s
 #footer {
   background-color: #333;
   letter-spacing: 1.2px;

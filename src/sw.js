@@ -1,7 +1,8 @@
 import DBHelper from './js/dbhelper'
 import dbPromise from './js/dbpromise'
 
-var CACHE_NAME = 'apcachev9';
+//files to cache
+var CACHE_NAME = 'RRcache';
 var urlsToCache = [
     '/',
     '/css/styles.css',
@@ -33,8 +34,8 @@ var urlsToCache = [
     'restaurant.html?id=10',
   ];
 
+//Event listenter for, return addAll
 self.addEventListener('install', function(event) {
-  // Perform install steps
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
@@ -44,11 +45,11 @@ self.addEventListener('install', function(event) {
   );
 });
 
+//Event listener for fetch
 self.addEventListener('fetch', function(event) {
   event.respondWith(
     caches.match(event.request)
       .then(function(response) {
-        // Cache hit - return response
         if (response) {
           return response;
         }
@@ -58,27 +59,22 @@ self.addEventListener('fetch', function(event) {
   );
 });
 
+//Event listener for background sync
 self.addEventListener('sync', function(event) {
   if (event.tag == 'syncFavorite') {
     event.waitUntil(syncFavorites());
   }
 });
 
+//Event listener for syncing favorites
 function syncFavorites() {
-  // TODO: STEP 5 open offline-favorites store
-  // for each record stored there, do a PUT request to the API.
-  // If the user is online, this will happen right away. If the user was offline
-  console.log('syncFavorites sync detected');
   return dbPromise.getOfflineFavorites().then(offlineFavoriteRestaurants => {
-    console.log('test sync favorites');
-
     offlineFavoriteRestaurants.forEach(restaurant => {
-
       const url = `${DBHelper.DATABASE_URL}/restaurants/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`;
       const PUT = {method: 'PUT'};
       return fetch(url, PUT).then(response => {
-        console.log('got fetch response');
-        if (!response.ok) return Promise.reject("We couldn't mark restaurant as favorite.");
+        console.log('Fetch response received');
+        if (!response.ok) return Promise.reject("Cannot save favorite");
         return response.json();
       }).then(updatedRestaurant => {
         // update restaurant on idb

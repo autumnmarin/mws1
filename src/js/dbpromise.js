@@ -2,7 +2,6 @@
 
 import idb from 'idb';
 
-
 const dbPromise = {
   db: idb.open('restaurant-reviews-db', 3, function(upgradeDb) {
     switch (upgradeDb.oldVersion) {
@@ -13,12 +12,14 @@ const dbPromise = {
           .createIndex('restaurant_id', 'restaurant_id');
       case 2:
         upgradeDb.createObjectStore('offline-favorites', { keyPath: 'id' } )
-    }
+      case 3:
+        upgradeDb.createObjectStore('offline-reviews', {autoIncrement: true} )
+          .createIndex('restaurant_id', 'restaurant_id');
+      }
   }),
 
   /**
-   * Save a restaurant or array of restaurants into idb, using promises. If second argument
-   * is passed a boolean true, data will be forcibly updated.
+   * Save a restaurant(s) using promises. If second argument passed is true, data will be force updated
    */
   putRestaurants(restaurants, forceUpdate = false) {
     if (!restaurants.push) restaurants = [restaurants];
@@ -38,8 +39,7 @@ const dbPromise = {
   },
 
   /**
-   * Get a restaurant, by its id, or all stored restaurants in idb using promises.
-   * If no argument is passed, all restaurants will returned.
+   * Get a restaurant by id, if no id, give all
    */
   getRestaurants(id = undefined) {
     return this.db.then(db => {
