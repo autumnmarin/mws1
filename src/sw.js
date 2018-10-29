@@ -74,7 +74,7 @@ function syncFavorites() {
 
     offlineFavoriteRestaurants.forEach(restaurant => {
 
-      const url = `${DBHelper.DATABASE_URL}restaurants/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`;
+      const url = `${DBHelper.DATABASE_URL}/restaurants/${restaurant.id}/?is_favorite=${restaurant.is_favorite}`;
       const PUT = {method: 'PUT'};
       return fetch(url, PUT).then(response => {
         console.log('got fetch response');

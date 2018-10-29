@@ -1,3 +1,5 @@
+//adapted from code from https://alexandroperez.github.io/mws-walkthrough/
+
 import DBHelper from "./dbhelper";
 import dbPromise from "./dbpromise";
 

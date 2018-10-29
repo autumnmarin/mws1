@@ -1,4 +1,4 @@
-//adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
+//adapted from code from https://alexandroperez.github.io/mws-walkthrough/
 
 import './sw-register'
 import DBHelper from './dbhelper'
@@ -9,8 +9,6 @@ let restaurants,
   cuisines
 var newMap
 var markers = []
-
-visualViewport.addEventListener('scroll', () => console.log('scroll'));
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.

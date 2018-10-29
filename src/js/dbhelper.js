@@ -1,4 +1,4 @@
-//adapted from code from https://alexandroperez.github.io/mws-walkthrough/?2.5.setting-up-indexeddb-promised-for-offline-use
+//adapted from code from https://alexandroperez.github.io/mws-walkthrough/
 
 import dbPromise from './dbpromise'
 
@@ -13,7 +13,7 @@ export default class DBHelper {
  */
  static get DATABASE_URL() {
      const port = 1337
-     return `http://localhost:1337/`;
+     return `http://localhost:1337`;
  }
 
   /**
