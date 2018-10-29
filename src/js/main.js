@@ -10,6 +10,8 @@ let restaurants,
 var newMap
 var markers = []
 
+visualViewport.addEventListener('scroll', () => console.log('scroll'));
+
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
